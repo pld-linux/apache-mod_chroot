@@ -11,12 +11,12 @@ Source0:	http://core.segfault.pl/~hobbit/mod_chroot/dist/mod_chroot-%{version}.t
 # Source0-md5:	d72716052faa3bdd3371210f26b13f38
 URL:		http://core.segfault.pl/~hobbit/mod_chroot/
 BuildRequires:	%{apxs}
-BuildRequires:	apache-devel
-Requires(post,preun):	%{apxs}
-Requires:	apache
+BuildRequires:	apache-devel >= 2.0
+Requires:	apache(modules-api) = %apache_modules_api
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_pkglibdir	%(%{apxs} -q LIBEXECDIR)
+%define		_pkglibdir	%(%{apxs} -q LIBEXECDIR 2>/dev/null)
+%define		_sysconfdir	%(%{apxs} -q SYSCONFDIR 2>/dev/null)
 
 %description
 mod_chroot makes running Apache in a secure chroot environment easy.
@@ -36,13 +36,29 @@ chroot. Nie trzeba tworzyæ specjalnej hierarchii katalogów /dev, /lib,
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT{%{_pkglibdir},%{_sysconfdir}/httpd.conf}
 
-install -D .libs/mod_%{mod_name}.so $RPM_BUILD_ROOT%{_pkglibdir}/mod_%{mod_name}.so
+install .libs/mod_%{mod_name}.so $RPM_BUILD_ROOT%{_pkglibdir}/mod_%{mod_name}.so
+echo 'LoadModule %{mod_name}_module modules/mod_%{mod_name}.so' > \
+	$RPM_BUILD_ROOT%{_sysconfdir}/httpd.conf/90_mod_%{mod_name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+if [ -f /var/lock/subsys/httpd ]; then
+	/etc/rc.d/init.d/httpd restart 1>&2
+fi
+
+%preun
+if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/httpd ]; then
+		/etc/rc.d/init.d/httpd restart 1>&2
+	fi
+fi
+
 %files
 %defattr(644,root,root,755)
 %doc CAVEATS ChangeLog INSTALL README
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/httpd.conf/*_mod_%{mod_name}.conf
 %attr(755,root,root) %{_pkglibdir}/*.so
