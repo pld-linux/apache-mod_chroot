@@ -10,7 +10,7 @@ Group:		Networking/Daemons
 Source0:	http://core.segfault.pl/~hobbit/mod_chroot/dist/mod_chroot-%{version}.tar.gz
 # Source0-md5:	d72716052faa3bdd3371210f26b13f38
 URL:		http://core.segfault.pl/~hobbit/mod_chroot/
-BuildRequires:	apache-apxs >= 2.0
+BuildRequires:	%{apxs}
 BuildRequires:	apache-devel >= 2.0
 BuildRequires:	rpmbuild(macros) >= 1.268
 Requires:	apache(modules-api) = %apache_modules_api
