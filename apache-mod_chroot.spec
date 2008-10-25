@@ -6,7 +6,7 @@ Name:		apache-mod_%{mod_name}
 Version:	0.5
 Release:	0.1
 License:	GPL
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Source0:	http://core.segfault.pl/~hobbit/mod_chroot/dist/mod_chroot-%{version}.tar.gz
 # Source0-md5:	d72716052faa3bdd3371210f26b13f38
 URL:		http://core.segfault.pl/~hobbit/mod_chroot/
